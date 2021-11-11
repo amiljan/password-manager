@@ -34,8 +34,8 @@ def encrypt(codeword,message):
         count +=1
     encrypted_message = ""
     for i in range(len(new_cypher)):
-        if new_cypher[i] > 45:
-            new_cypher[i] = new_cypher[i] - 46
+        if new_cypher[i] > 100:
+            new_cypher[i] = new_cypher[i] - 101
         encrypted_message = encrypted_message + lista[new_cypher[i]]
     return encrypted_message
 
@@ -54,7 +54,7 @@ def decrypt(codeword,message):
     encrypted_message = ""
     for i in range(len(new_cypher)):
         if new_cypher[i] < 0:
-            new_cypher[i] = new_cypher[i] + 46
+            new_cypher[i] = new_cypher[i] + 101
         encrypted_message = encrypted_message + lista[new_cypher[i]]
     return encrypted_message
 

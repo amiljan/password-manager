@@ -1,14 +1,11 @@
 from tkinter import *
 from cypher import decrypt, lista_password, encrypt
 import random
-import pandas as pd
-from os.path import exists
+import json
+import pyperclip
 
 ekran = Tk()
 ekran.title("Password Manager")
-
-if exists("passwords.csv") != True:
-    pd.DataFrame({"Website":[],"Email":[],"Password":[]}).to_csv("passwords.csv",index=False)
 
 
 def generate_password():
@@ -39,28 +36,35 @@ def save_add():
     key = retrive_input.get()
     email_crypt = encrypt(key,email)
     password_crypt = encrypt(key,password)
-    input_table = pd.read_csv("passwords.csv")
-    table = input_table.to_dict()
-    free_row = len(table["Website"])
-    table["Website"][free_row] = website
-    table["Email"][free_row] = email_crypt
-    table["Password"][free_row] = password_crypt
-    output_table = pd.DataFrame(table)
-    output_table.to_csv("passwords.csv",index=False)
+    output = {website:{"email":email_crypt, "password":password_crypt}}
+    try:
+        with open("passwods.json","r") as input_file:
+            input = json.load(input_file)
+    except:
+        with open("passwods.json","w") as output_file:
+            json.dump(output,output_file,indent=4)
+    else:
+        input.update(output)
+        with open("passwods.json","w") as output_file:
+            json.dump(input,output_file,indent=4)
+    finally:
+        website_input.delete(0,END)
+        password_input.delete(0,END)
+        pyperclip.copy(password)
+
         
 
 
 def retrive_passwords():
     text = Text()
     text.grid(row=6,column=1)
-    input_passwords = pd.read_csv("passwords.csv").to_dict()
-    print(input_passwords)
-    num_of_rows = len(input_passwords["Website"])
-    for row in range(num_of_rows):
-        input_passwords["Email"][row] = decrypt(retrive_input.get(),input_passwords["Email"][row])
-        input_passwords["Password"][row] = decrypt(retrive_input.get(),input_passwords["Password"][row])
-    output_password = pd.DataFrame(input_passwords)
-    text.insert(END,output_password.to_string)
+    with open("passwods.json","r") as retrieved_inputs:
+        inputs = json.load(retrieved_inputs)
+        for sites in inputs:
+            mail = decrypt(retrive_input.get(), inputs[sites]["email"])
+            passw = decrypt(retrive_input.get(),inputs[sites]["password"])
+            full_text = (f"{sites} | {mail} | {passw}")
+            text.insert(END,full_text + '\n')
     
 
 canvas = Canvas(width=300, height=300)
